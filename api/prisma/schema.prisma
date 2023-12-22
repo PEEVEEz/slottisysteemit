@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  twitchId String @unique
+
+  hunts Hunt[]
+}
+
+model Bonus {
+  id Int @id @default(autoincrement())
+  game String
+  bet Int
+
+  payout String?
+
+  huntId Int
+  hunt  Hunt @relation(fields: [huntId], references: [id])
+}
+
+model Hunt {
+    id Int @id @default(autoincrement())
+
+    name String
+    start Int
+
+    userId Int
+    user User @relation(fields: [userId], references: [id])
+
+    bonuses Bonus[]
+}
