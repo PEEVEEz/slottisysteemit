@@ -12,16 +12,13 @@ export const registerHuntsRoutes = (
 
   instance.get("/", async (req, reply) => {
     try {
-      const user = await prisma.user.findUnique({
+      const hunts = await prisma.hunt.findMany({
         where: {
-          twitchId: req.user.twitchId,
-        },
-        select: {
-          hunts: true,
+          userId: req.user.id,
         },
       });
 
-      return user?.hunts || [];
+      return hunts || [];
     } catch (error) {
       console.error("Error retrieving user:", error);
       return reply.status(500).send("Internal Server Error");

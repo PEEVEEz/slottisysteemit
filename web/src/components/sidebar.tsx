@@ -14,7 +14,7 @@ export function Sidebar() {
 
     const handleLogout = () => {
         dispatch(setUser(null));
-        Cookies.remove("accessToken");
+        Cookies.remove("authToken");
 
         navigate("/")
     }

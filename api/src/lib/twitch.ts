@@ -27,7 +27,7 @@ export async function GetTwitchUserDataByAccessToken(
   };
 }
 
-type TwitchToken = {
+export type TwitchToken = {
   expires_in: number;
   access_token: string;
   refresh_token: string;

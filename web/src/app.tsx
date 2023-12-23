@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query"
 import { DashboardPage } from "./pages/dashboard/dashboard"
 
 export function App() {
-  if (Cookies.get("accessToken")) {
+  if (Cookies.get("authToken")) {
     const dispatch = useDispatch();
     const { isLoading, error, data } = useQuery({
       queryKey: ["userData"],

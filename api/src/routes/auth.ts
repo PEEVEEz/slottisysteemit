@@ -4,6 +4,7 @@ import {
 } from "../lib/twitch";
 import { env } from "../lib/env";
 import prisma from "../lib/prisma";
+import { SetAndGenerateAuthTokenCookie } from "../lib/utils";
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 
 export const registerAuthRoutes = (
@@ -12,12 +13,12 @@ export const registerAuthRoutes = (
   done: (err?: Error | undefined) => void
 ) => {
   instance.get("/login", (_, reply) => {
-    const params = new URLSearchParams();
-
-    params.append("response_type", "code");
-    params.append("client_id", env.CLIENT_ID);
-    params.append("redirect_uri", env.CALLBACK_URL);
-    params.append("scope", "user:read:email openid");
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: env.CLIENT_ID,
+      redirect_uri: env.CALLBACK_URL,
+      scope: ["user:read:email", "openid"].join(" "),
+    });
 
     reply.redirect(
       `https://id.twitch.tv/oauth2/authorize?${params.toString()}`
@@ -29,12 +30,9 @@ export const registerAuthRoutes = (
     async (req: FastifyRequest<{ Querystring: { code: string } }>, reply) => {
       const code = req.query.code;
 
-      const { access_token } = await GetTwitchUserToken(
-        "authorization_code",
-        code
-      );
+      const tokenData = await GetTwitchUserToken("authorization_code", code);
 
-      const user = await GetTwitchUserDataByAccessToken(access_token);
+      const user = await GetTwitchUserDataByAccessToken(tokenData.access_token);
 
       await prisma.user.upsert({
         where: {
@@ -46,12 +44,7 @@ export const registerAuthRoutes = (
         },
       });
 
-      reply.setCookie("accessToken", access_token, {
-        path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      });
-
+      SetAndGenerateAuthTokenCookie(tokenData, reply);
       reply.redirect(env.DASHBOARD_URL);
       return "OK";
     }
