@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function Hunts() {
     const { isLoading, data, refetch } = useQuery<Hunt[]>({
         queryKey: ["hunts"],
-        queryFn: () => fetch("http://localhost:3001/hunts", { credentials: "include" }).then((res) => res.json())
+        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts`, { credentials: "include" }).then((res) => res.json())
     })
 
     if (isLoading) {

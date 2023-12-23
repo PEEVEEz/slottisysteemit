@@ -44,7 +44,7 @@ export function Navbar() {
                     </Button>
                     :
                     <Button size={"sm"} asChild variant={"secondary"} className="flex items-center gap-2">
-                        <Link to={"http://localhost:3001/auth/login"}>
+                        <Link to={`${import.meta.env.VITE_API_URL}/auth/login`}>
                             <Twitch className="w-4 h-4" />
                             <span>Login</span>
                         </Link>

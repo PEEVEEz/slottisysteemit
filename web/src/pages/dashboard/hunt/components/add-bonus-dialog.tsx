@@ -26,7 +26,7 @@ export function AddBonusDialog({ hunt_id, onSend }: Props) {
     const [games, setGames] = useState<string[]>([]);
 
     const handleSearch = async (value: string) => {
-        const response = await fetch("http://localhost:3001/game?name=" + value);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/game?name=${value}`);
         const data = await response.json();
         setGames(data);
     };
@@ -40,7 +40,7 @@ export function AddBonusDialog({ hunt_id, onSend }: Props) {
                 bet: parseFloat(bet), game
             });
 
-            await fetch("http://localhost:3001/hunts/bonus", {
+            await fetch(`${import.meta.env.VITE_API_URL}/hunts/bonus`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

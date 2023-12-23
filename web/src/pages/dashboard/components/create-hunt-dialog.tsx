@@ -31,7 +31,7 @@ export function CreateHuntDialog({ onSend }: Props) {
                 start: parseFloat(start), name
             });
 
-            await fetch("http://localhost:3001/hunts", {
+            await fetch(`${import.meta.env.VITE_API_URL}/hunts`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

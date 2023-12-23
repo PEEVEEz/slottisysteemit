@@ -14,7 +14,7 @@ export function App() {
     const dispatch = useDispatch();
     const { isLoading, error, data } = useQuery({
       queryKey: ["userData"],
-      queryFn: () => fetch("http://localhost:3001/users/@me", { credentials: "include" }).then((res) => res.json())
+      queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/users/@me`, { credentials: "include" }).then((res) => res.json())
     })
 
     if (isLoading) return <div className="flex items-center justify-center h-[90vh] text-zinc-300">

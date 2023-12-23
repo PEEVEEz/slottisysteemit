@@ -19,6 +19,10 @@ server.register(registerAuthRoutes, { prefix: "auth" });
 server.register(registerUsersRoutes, { prefix: "users" });
 server.register(registerHuntsRoutes, { prefix: "hunts" });
 
+server.get("/ping", (req, reply) => {
+  reply.status(200).send("pong!");
+});
+
 //game search
 server.get(
   "/game",

@@ -12,7 +12,7 @@ export function HuntPage() {
 
     const { isLoading, data, refetch } = useQuery<Hunt & { bonuses: Bonus[] }>({
         queryKey: ["hunts"],
-        queryFn: () => fetch("http://localhost:3001/hunts/" + params.id, { credentials: "include" }).then((res) => res.json())
+        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${params.id}`, { credentials: "include" }).then((res) => res.json())
     })
 
     if (isLoading) {
