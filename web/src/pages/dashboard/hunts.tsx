@@ -48,7 +48,9 @@ export function Hunts() {
                                     <MoreHorizontal />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="*:cursor-pointer">
-                                    <DropdownMenuItem>View</DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to={`/dashboard/hunts/${v.id}`}>View</Link>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem>Edit</DropdownMenuItem>
                                     <DropdownMenuItem>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>

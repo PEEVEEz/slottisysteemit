@@ -1,10 +1,5 @@
 import { env } from "./env";
-
-type TwitchUser = {
-  twitchId: string;
-  display_name: string;
-  profile_image_url: string;
-};
+import type { TwitchToken, TwitchUser } from "../types";
 
 export async function GetTwitchUserDataByAccessToken(
   token: string
@@ -26,12 +21,6 @@ export async function GetTwitchUserDataByAccessToken(
     profile_image_url: userData.profile_image_url,
   };
 }
-
-export type TwitchToken = {
-  expires_in: number;
-  access_token: string;
-  refresh_token: string;
-};
 
 export async function GetTwitchUserToken(
   grant_type: "refresh_token" | "authorization_code",

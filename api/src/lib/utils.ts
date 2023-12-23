@@ -1,6 +1,6 @@
 import { env } from "./env";
 import { sign } from "jsonwebtoken";
-import { TwitchToken } from "./twitch";
+import type { TwitchToken } from "../types";
 import { FastifyReply } from "fastify/types/reply";
 
 export function SetAndGenerateAuthTokenCookie(

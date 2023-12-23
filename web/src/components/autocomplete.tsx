@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
 
 type Props = {
     name?: string;
@@ -47,10 +47,6 @@ export const Autocomplete: React.FC<Props> = ({
         setOpen(false);
     };
 
-    // if (!(items.length && open)) {
-    //     return null;
-    // }
-
     const containerClass = "relative";
     const dropdownClass = "border p-2 absolute w-full mt-2 backdrop-blur-sm text-zinc-300 rounded-md flex flex-col gap-2";
 
@@ -64,9 +60,9 @@ export const Autocomplete: React.FC<Props> = ({
                 name={name}
             />
 
-            {open && items && (
+            {open && items && items.length > 0 && (
                 <div className={dropdownClass}>
-                    {items.map((item, index) => (
+                    {items.map((item) => (
                         <Button
                             key={`autocomplete_item_${item}`}
                             onClick={() => handleSelect(item)}

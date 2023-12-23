@@ -1,8 +1,8 @@
-import { CoffeeIcon, GithubIcon, HomeIcon, MenuIcon, Twitch } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { CoffeeIcon, GithubIcon, HomeIcon, MenuIcon, Twitch } from "lucide-react";
 
 export function Navbar() {
     const isLoggedIn = useSelector((state: RootState) => state.user.data) !== null;

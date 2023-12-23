@@ -1,11 +1,11 @@
 import {
-  TwitchToken,
   GetTwitchUserToken,
   GetTwitchUserDataByAccessToken,
 } from "../lib/twitch";
 import { env } from "../lib/env";
 import prisma from "../lib/prisma";
 import { verify } from "jsonwebtoken";
+import type { TwitchToken } from "../types";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { SetAndGenerateAuthTokenCookie } from "../lib/utils";
 
