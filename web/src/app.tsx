@@ -1,13 +1,12 @@
 import Cookies from "js-cookie";
 import { Loader } from "lucide-react"
-import { HomePage } from "./pages/home"
 import { useDispatch } from "react-redux"
 import { Navbar } from "./components/navbar"
 import { Footer } from "./components/footer"
 import { setUser } from "./redux/slices/user"
-import { Route, Routes } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-import { DashboardPage } from "./pages/dashboard/dashboard"
+import { Outlet } from "@tanstack/react-router";
+
 
 export function App() {
   if (Cookies.get("authToken")) {
@@ -30,10 +29,7 @@ export function App() {
     <div className="h-screen flex flex-col">
       <Navbar />
       <div className="flex-1">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard/*" element={<DashboardPage />} />
-        </Routes>
+        <Outlet />
       </div>
       <Footer />
     </div>

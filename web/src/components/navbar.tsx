@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { Link } from "@tanstack/react-router";
 import { CoffeeIcon, GithubIcon, HomeIcon, MenuIcon, Twitch } from "lucide-react";
 
 export function Navbar() {
@@ -22,18 +22,18 @@ export function Navbar() {
                 </Button>
 
                 <Button variant={"link"} asChild className="flex items-center gap-2">
-                    <Link to={"https://github.com/PEEVEEz/slottisysteemit"}>
+                    <a href={"https://github.com/PEEVEEz/slottisysteemit"}>
                         <GithubIcon className="w-4 h-4" />
                         <span>Source Code</span>
-                    </Link>
+                    </a>
                 </Button>
 
 
                 <Button variant={"link"} asChild className="flex items-center gap-2">
-                    <Link to={"https://www.buymeacoffee.com/peevee"}>
+                    <a href={"https://www.buymeacoffee.com/peevee"}>
                         <CoffeeIcon className="w-4 h-4" />
                         <span>Buy me a coffee</span>
-                    </Link>
+                    </a>
                 </Button>
 
                 {isLoggedIn ?
@@ -44,10 +44,10 @@ export function Navbar() {
                     </Button>
                     :
                     <Button size={"sm"} asChild variant={"secondary"} className="flex items-center gap-2">
-                        <Link to={`${import.meta.env.VITE_API_URL}/auth/login`}>
+                        <a href={`${import.meta.env.VITE_API_URL}/auth/login`}>
                             <Twitch className="w-4 h-4" />
                             <span>Login</span>
-                        </Link>
+                        </a>
                     </Button>
                 }
             </div>

@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
+import { Route } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import { ChevronLeft, ChevronRight, LinkIcon, TwitchIcon } from "lucide-react";
+import { rootRoute } from "../routes";
 
-export function HomePage() {
+function HomePage() {
     const fixTextLength = (message: string) => {
         return message.slice(1, 199) + "..."
     }
@@ -18,10 +19,10 @@ export function HomePage() {
 
             <div className="flex justify-center lg:justify-start">
                 <Button variant={"secondary"} asChild className="flex items-center gap-2" size={"lg"}>
-                    <Link to={`${import.meta.env.VITE_API_URL}/auth/login`}>
+                    <a href={`${import.meta.env.VITE_API_URL}/auth/login`}>
                         <TwitchIcon className="w-5 h-5 select" />
                         <span>Login for free</span>
-                    </Link>
+                    </a>
                 </Button>
             </div>
         </div>
@@ -63,3 +64,9 @@ export function HomePage() {
 
     </div >
 }
+
+export const homeRoute = new Route({
+    path: "/",
+    component: HomePage,
+    getParentRoute: () => rootRoute,
+});

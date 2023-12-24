@@ -1,18 +1,20 @@
 import { Bonus, Hunt } from "../../../types";
+import { dashboardRoute } from "../dashboard";
 import { MoreHorizontal } from "lucide-react";
+import { Route } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "../../../components/loader";
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate } from "@tanstack/react-router";
 import { AddBonusDialog } from "./components/add-bonus-dialog";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "../../../components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 
-export function HuntPage() {
-    const params = useParams<{ id: string }>();
+function HuntPage() {
+    const { id } = huntRoute.useParams();
 
     const { isLoading, data, refetch } = useQuery<Hunt & { bonuses: Bonus[] }>({
         queryKey: ["hunts"],
-        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${params.id}`, { credentials: "include" }).then((res) => res.json())
+        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, { credentials: "include" }).then((res) => res.json())
     })
 
     if (isLoading) {
@@ -20,7 +22,7 @@ export function HuntPage() {
     }
 
     if (!data) {
-        useNavigate()("/");
+        useNavigate({ from: "/" });
         return null;
     }
 
@@ -69,3 +71,9 @@ export function HuntPage() {
         </Table>
     </div>
 }
+
+export const huntRoute = new Route({
+    getParentRoute: () => dashboardRoute,
+    path: "/hunts/$id",
+    component: HuntPage
+})

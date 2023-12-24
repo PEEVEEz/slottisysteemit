@@ -2,21 +2,21 @@ import Cookies from "js-cookie";
 import { Button } from "./ui/button";
 import { RootState } from "../redux/store";
 import { setUser } from "../redux/slices/user";
-import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { CrosshairIcon, Grid2X2, LogOut } from "lucide-react";
 
 
 export function Sidebar() {
-    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const navigate = useNavigate({ from: "/" });
     const user = useSelector((state: RootState) => state.user.data);
 
     const handleLogout = () => {
         dispatch(setUser(null));
         Cookies.remove("authToken");
 
-        navigate("/")
+        navigate()
     }
 
     return <div className="w-56 text-zinc-200 flex flex-col gap-2 mt-3">
