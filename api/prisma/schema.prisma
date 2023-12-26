@@ -25,7 +25,7 @@ model Bonus {
   payout String?
 
   huntId Int
-  hunt  Hunt @relation(fields: [huntId], references: [id])
+  hunt  Hunt @relation(fields: [huntId], references: [id], onDelete: Cascade)
 }
 
 model Hunt {
@@ -35,7 +35,7 @@ model Hunt {
     start Int
 
     userId Int
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     bonuses Bonus[]
 }
