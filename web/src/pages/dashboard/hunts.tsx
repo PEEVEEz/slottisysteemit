@@ -1,22 +1,31 @@
-import { Hunt } from "../../types";
+import { Hunt } from "@/types/types";
 import { dashboardRoute } from "./dashboard";
+import { Loader } from "@/components/loader";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
 import { Route } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Loader } from "../../components/loader";
 import { CreateHuntDialog } from "./components/create-hunt-dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function HuntsPage() {
-    const { isLoading, data, refetch } = useQuery<Hunt[]>({
+    const { isLoading, data, fetchStatus, refetch } = useQuery<Hunt[]>({
         queryKey: ["hunts"],
         queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts`, { credentials: "include" }).then((res) => res.json())
     })
 
-    if (isLoading) {
+    if (isLoading || fetchStatus === "fetching") {
         return <Loader />
+    }
+
+    const handleDelete = async (id: number) => {
+        await fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, {
+            method: "DELETE",
+            credentials: "include"
+        })
+
+        refetch();
     }
 
     return <div className="text-zinc-200">
@@ -25,7 +34,7 @@ function HuntsPage() {
                 Hunts
             </div>
 
-            <CreateHuntDialog onSend={refetch} />
+            <CreateHuntDialog />
         </div>
 
         <Table>
@@ -38,7 +47,8 @@ function HuntsPage() {
                 </TableRow>
             </TableHeader>
 
-            {data && data.length &&
+
+            {data &&
                 <TableBody>
                     {data.map((v, k) => <TableRow key={`action_dropdown_${k}`}>
                         <TableCell><Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>{v.name}</Link></TableCell>
@@ -54,13 +64,13 @@ function HuntsPage() {
                                         <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>View</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDelete(v.id)}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
                         </TableCell>
                     </TableRow>
-                    )}
+                    ).reverse()}
                 </TableBody>
             }
         </Table>

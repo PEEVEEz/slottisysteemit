@@ -19,10 +19,6 @@ server.register(registerAuthRoutes, { prefix: "auth" });
 server.register(registerUsersRoutes, { prefix: "users" });
 server.register(registerHuntsRoutes, { prefix: "hunts" });
 
-server.get("/ping", (req, reply) => {
-  reply.status(200).send("pong!");
-});
-
 //game search
 server.get(
   "/game",
@@ -31,13 +27,14 @@ server.get(
       const url = `https://cms-prod.casinobud.com/api/proxy?operationName=searchGames&variables={"first":5,"skip":0,"name":"${req.query.name}"}&extensions={"persistedQuery":{"version":1,"sha256Hash":"ead60222ed62e2c6792f37ab03b1b14203f9a00a11d825791d31bc896a5750e8"}}`;
 
       const response = await fetch(url);
-      const data = await response.json();
+      const { data }: { data?: { allGames: { name: string }[] } } =
+        await response.json();
 
-      if (!data.data || !data.data.allGames || data.data.allGames.length <= 0) {
+      if (!data || !data.allGames || data.allGames.length <= 0) {
         return [req.query.name];
       }
 
-      return (data.data.allGames as { name: string }[]).map((v) => v.name);
+      return data.allGames.map((v) => v.name);
     } catch (error) {
       reply.code(500).send({
         message: "Internal server error",

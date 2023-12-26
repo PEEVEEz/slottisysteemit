@@ -1,38 +1,53 @@
-import { Bonus, Hunt } from "../../../types";
-import { dashboardRoute } from "../dashboard";
+import { toast } from "sonner";
+import { Bonus, Hunt } from "@/types/types";
+import { Loader } from "@/components/loader";
 import { MoreHorizontal } from "lucide-react";
+import { dashboardRoute } from "../dashboard";
 import { Route } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Loader } from "../../../components/loader";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { AddBonusDialog } from "./components/add-bonus-dialog";
-import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "../../../components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 
 function HuntPage() {
     const { id } = huntRoute.useParams();
 
-    const { isLoading, data, refetch } = useQuery<Hunt & { bonuses: Bonus[] }>({
-        queryKey: ["hunts"],
-        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, { credentials: "include" }).then((res) => res.json())
+    const { isLoading, data, refetch, fetchStatus } = useQuery<Hunt & { bonuses: Bonus[] }>({
+        queryKey: ["hunt"],
+        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, { credentials: "include" }).then((res) => res.json()),
     })
 
-    if (isLoading) {
+    if (isLoading || fetchStatus === "fetching") {
         return <Loader />
     }
 
     if (!data) {
-        useNavigate({ from: "/" });
+        useNavigate({ from: "/" })();
         return null;
+    }
+
+    const handleDelete = async (bonus_id: number) => {
+        await fetch(`${import.meta.env.VITE_API_URL}/hunts/bonus/${bonus_id}`, {
+            method: "DELETE",
+            credentials: "include"
+        })
+
+        await refetch();
+
+        toast.success("Bonus deleted", {
+            duration: 1000
+        })
     }
 
     return <div className="text-zinc-200">
         <div className="flex justify-between items-center">
             <div className="text-xl font-semibold">
-                <Link to={"/dashboard"}>Hunts</Link> / {data?.name}
+                <Link to={"/dashboard"}>Hunts</Link> / {data.name}
             </div>
 
-            <AddBonusDialog hunt_id={data.id} onSend={refetch} />
+            <AddBonusDialog hunt_id={data.id} />
         </div>
 
         <Table>
@@ -46,7 +61,7 @@ function HuntPage() {
                 </TableRow>
             </TableHeader>
 
-            {data && data.bonuses &&
+            {data.bonuses &&
                 <TableBody>
                     {data.bonuses.map((v, k) => <TableRow key={`action_dropdown_${k}`}>
                         <TableCell>{v.game}</TableCell>
@@ -59,7 +74,7 @@ function HuntPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="*:cursor-pointer">
                                     <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDelete(v.id)}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 

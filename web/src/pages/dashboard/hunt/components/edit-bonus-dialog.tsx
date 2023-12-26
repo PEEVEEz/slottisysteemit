@@ -18,7 +18,7 @@ type Props = {
     hunt_id: number
 }
 
-export function AddBonusDialog({ hunt_id }: Props) {
+export function EditBonusDialog({ hunt_id }: Props) {
     const [bet, setBet] = useState("");
     const [game, setGame] = useState("");
     const queryClient = useQueryClient();

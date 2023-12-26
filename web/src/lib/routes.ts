@@ -1,11 +1,11 @@
 import { RootRoute, Router } from "@tanstack/react-router";
-import { App } from "./app";
+import { App } from "../app";
 
 //routes
-import { homeRoute } from "./pages/home";
-import { huntsRoute } from "./pages/dashboard/hunts";
-import { huntRoute } from "./pages/dashboard/hunt/hunt";
-import { dashboardRoute } from "./pages/dashboard/dashboard";
+import { homeRoute } from "../pages/home";
+import { huntsRoute } from "../pages/dashboard/hunts";
+import { huntRoute } from "../pages/dashboard/hunt/hunt";
+import { dashboardRoute } from "../pages/dashboard/dashboard";
 
 export const rootRoute = new RootRoute({
   component: App,

@@ -23,6 +23,8 @@ export const authMiddleware = async (
       return;
     }
 
+    console.log("[REQUEST]", req.routeOptions.url);
+
     const jwt = verify(token, env.JWT_SECRET);
     if (!jwt) {
       reply.status(401).send({

@@ -1,14 +1,14 @@
+import { rootRoute } from "@/lib/routes";
 import { Route } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import { ChevronLeft, ChevronRight, LinkIcon, TwitchIcon } from "lucide-react";
-import { rootRoute } from "../routes";
 
 function HomePage() {
     const fixTextLength = (message: string) => {
         return message.slice(1, 199) + "..."
     }
 
-    return <div className="flex pt-16 lg:pt-32 flex-col lg:flex-row items-center lg:items-start mx-auto max-w-7xl text-neutral-200 lg:justify-between px-3 xl:px-0">
+    return <div className="flex pt-16 lg:pt-36 flex-col lg:flex-row items-center lg:items-start mx-auto max-w-7xl text-neutral-200 lg:justify-between px-3 xl:px-0">
         <div className="max-w-xl space-y-8">
             <div>
                 <h1 className="text-5xl font-semibold text-center lg:text-start">Effortless Bonus Organization & Tracking</h1>

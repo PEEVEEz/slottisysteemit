@@ -6,6 +6,7 @@ import { Footer } from "./components/footer"
 import { setUser } from "./redux/slices/user"
 import { useQuery } from "@tanstack/react-query"
 import { Outlet } from "@tanstack/react-router";
+import { Toaster } from "./components/ui/sonner";
 
 
 export function App() {
@@ -31,6 +32,8 @@ export function App() {
       <div className="flex-1">
         <Outlet />
       </div>
+
+      <Toaster />
       <Footer />
     </div>
   )

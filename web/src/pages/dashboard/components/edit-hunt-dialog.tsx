@@ -13,7 +13,7 @@ const formSchema = z.object({
     start: z.number().nonnegative().min(0.01)
 })
 
-export function CreateHuntDialog() {
+export function EditHuntDialog() {
     const [name, setName] = useState("");
     const queryClient = useQueryClient();
     const [start, setStart] = useState("");
@@ -30,7 +30,7 @@ export function CreateHuntDialog() {
             });
 
             await fetch(`${import.meta.env.VITE_API_URL}/hunts`, {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
