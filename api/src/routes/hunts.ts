@@ -25,6 +25,24 @@ export const registerHuntsRoutes = (
     }
   });
 
+  instance.delete(
+    "/:id",
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      try {
+        await prisma.hunt.delete({
+          where: {
+            id: +req.params.id,
+          },
+        });
+
+        return "ok";
+      } catch (error) {
+        console.error("Error deleting hunt:", error);
+        return reply.status(500).send("Internal Server Error");
+      }
+    }
+  );
+
   instance.post(
     "/",
     {
@@ -75,6 +93,24 @@ export const registerHuntsRoutes = (
         });
 
         return hunt;
+      } catch (error) {
+        console.error("Error retrieving hunt:", error);
+        return reply.status(500).send("Internal Server Error");
+      }
+    }
+  );
+
+  instance.delete(
+    "/bonus/:id",
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      try {
+        await prisma.bonus.delete({
+          where: {
+            id: +req.params.id,
+          },
+        });
+
+        return "ok";
       } catch (error) {
         console.error("Error retrieving hunt:", error);
         return reply.status(500).send("Internal Server Error");
