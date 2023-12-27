@@ -10,6 +10,7 @@ export const registerHuntsRoutes = (
   /** @ts-ignore */
   instance.addHook("preHandler", authMiddleware);
 
+  //get hunts
   instance.get("/", async (req, reply) => {
     try {
       const hunts = await prisma.hunt.findMany({
@@ -25,6 +26,7 @@ export const registerHuntsRoutes = (
     }
   });
 
+  //delete hunt
   instance.delete(
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
@@ -43,6 +45,7 @@ export const registerHuntsRoutes = (
     }
   );
 
+  //create hunt
   instance.post(
     "/",
     {
@@ -77,6 +80,48 @@ export const registerHuntsRoutes = (
     }
   );
 
+  //update hunt
+  instance.put(
+    "/",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            start: { type: "number" },
+            hunt_id: { type: "number" },
+          },
+          required: ["name", "start", "hunt_id"],
+        },
+      },
+    },
+    async (
+      req: FastifyRequest<{
+        Body: { start: number; hunt_id: number; name: string };
+      }>,
+      reply
+    ) => {
+      try {
+        await prisma.hunt.update({
+          where: {
+            id: req.body.hunt_id,
+          },
+          data: {
+            name: req.body.name,
+            start: req.body.start,
+          },
+        });
+
+        return "OK";
+      } catch (error) {
+        console.error("Error updating bonus:", error);
+        return reply.status(500).send("Internal Server Error");
+      }
+    }
+  );
+
+  //get hunt by id
   instance.get(
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
@@ -100,6 +145,7 @@ export const registerHuntsRoutes = (
     }
   );
 
+  //delete bonus
   instance.delete(
     "/bonus/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
@@ -118,6 +164,7 @@ export const registerHuntsRoutes = (
     }
   );
 
+  //add bonus
   instance.post(
     "/bonus",
     async (
@@ -138,6 +185,47 @@ export const registerHuntsRoutes = (
         return newBonus;
       } catch (error) {
         console.error("Error creating bonus:", error);
+        return reply.status(500).send("Internal Server Error");
+      }
+    }
+  );
+
+  //update bonus
+  instance.put(
+    "/bonus",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            bet: { type: "number" },
+            hunt_id: { type: "number" },
+            bonus_id: { type: "number" },
+          },
+          required: ["bet", "hunt_id", "bonus_id"],
+        },
+      },
+    },
+    async (
+      req: FastifyRequest<{
+        Body: { bet: number; hunt_id: number; bonus_id: number };
+      }>,
+      reply
+    ) => {
+      try {
+        await prisma.bonus.update({
+          where: {
+            huntId: req.body.hunt_id,
+            id: req.body.bonus_id,
+          },
+          data: {
+            bet: req.body.bet,
+          },
+        });
+
+        return "OK";
+      } catch (error) {
+        console.error("Error updating bonus:", error);
         return reply.status(500).send("Internal Server Error");
       }
     }

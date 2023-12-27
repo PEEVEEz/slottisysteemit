@@ -9,6 +9,7 @@ export const registerUsersRoutes = (
   /** @ts-ignore */
   instance.addHook("preHandler", authMiddleware);
 
+  //get user data
   instance.get("/@me", (req) => {
     return req.user;
   });

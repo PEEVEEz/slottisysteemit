@@ -1,18 +1,20 @@
+import { toast } from "sonner";
 import { Hunt } from "@/types/types";
 import { dashboardRoute } from "./dashboard";
 import { Loader } from "@/components/loader";
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal } from "lucide-react";
 import { Route } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { DialogTrigger } from "@/components/ui/dialog";
+import { EditHuntDialog } from "./components/edit-hunt-dialog";
 import { CreateHuntDialog } from "./components/create-hunt-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function HuntsPage() {
     const { isLoading, data, fetchStatus, refetch } = useQuery<Hunt[]>({
         queryKey: ["hunts"],
-        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts`, { credentials: "include" }).then((res) => res.json())
+        refetchOnWindowFocus: false,
+        queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts`, { credentials: "include" }).then((res) => res.json()),
     })
 
     if (isLoading || fetchStatus === "fetching") {
@@ -25,12 +27,16 @@ function HuntsPage() {
             credentials: "include"
         })
 
-        refetch();
+        await refetch();
+
+        toast.success("Hunt deleted!", {
+            duration: 1500
+        })
     }
 
     return <div className="text-zinc-200">
         <div className="flex justify-between items-center">
-            <div className="text-xl font-semibold">
+            <div className="text-lg font-semibold">
                 Hunts
             </div>
 
@@ -51,23 +57,29 @@ function HuntsPage() {
             {data &&
                 <TableBody>
                     {data.map((v, k) => <TableRow key={`action_dropdown_${k}`}>
-                        <TableCell><Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>{v.name}</Link></TableCell>
+                        <TableCell>
+                            <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }} className="hover:underline">{v.name}</Link>
+                        </TableCell>
                         <TableCell>{v.start}€</TableCell>
                         <TableCell>-400€</TableCell>
-                        <TableCell className="flex items-center">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger>
-                                    <MoreHorizontal />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="*:cursor-pointer">
-                                    <DropdownMenuItem asChild>
-                                        <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>View</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleDelete(v.id)}>Delete</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                        <TableCell className="flex items-center gap-4">
+                            <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>View</Link>
 
+                            <div>/</div>
+
+                            <EditHuntDialog hunt_id={v.id} current_name={v.name} current_start={v.start} >
+                                <DialogTrigger asChild>
+                                    <button>
+                                        Edit
+                                    </button>
+                                </DialogTrigger>
+                            </EditHuntDialog>
+
+                            <div>/</div>
+
+                            <button onClick={() => handleDelete(v.id)}>
+                                Delete
+                            </button>
                         </TableCell>
                     </TableRow>
                     ).reverse()}

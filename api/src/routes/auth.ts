@@ -31,7 +31,6 @@ export const registerAuthRoutes = (
       const code = req.query.code;
 
       const tokenData = await GetTwitchUserToken("authorization_code", code);
-
       const user = await GetTwitchUserDataByAccessToken(tokenData.access_token);
 
       await prisma.user.upsert({

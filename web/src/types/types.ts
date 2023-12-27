@@ -8,5 +8,5 @@ export type Bonus = {
 export type Hunt = {
   id: number;
   name: string;
-  start: string;
+  start: number;
 };

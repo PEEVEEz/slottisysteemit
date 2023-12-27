@@ -1,14 +1,14 @@
 import { toast } from "sonner";
 import { Bonus, Hunt } from "@/types/types";
 import { Loader } from "@/components/loader";
-import { MoreHorizontal } from "lucide-react";
 import { dashboardRoute } from "../dashboard";
 import { Route } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { AddBonusDialog } from "./components/add-bonus-dialog";
+import { EditBonusDialog } from "./components/edit-bonus-dialog";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
 function HuntPage() {
@@ -16,6 +16,7 @@ function HuntPage() {
 
     const { isLoading, data, refetch, fetchStatus } = useQuery<Hunt & { bonuses: Bonus[] }>({
         queryKey: ["hunt"],
+        refetchOnWindowFocus: false,
         queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, { credentials: "include" }).then((res) => res.json()),
     })
 
@@ -36,15 +37,15 @@ function HuntPage() {
 
         await refetch();
 
-        toast.success("Bonus deleted", {
-            duration: 1000
+        toast.success("Bonus deleted!", {
+            duration: 1500
         })
     }
 
     return <div className="text-zinc-200">
         <div className="flex justify-between items-center">
-            <div className="text-xl font-semibold">
-                <Link to={"/dashboard"}>Hunts</Link> / {data.name}
+            <div className="text-lg font-semibold flex items-center gap-2.5">
+                <Link to={"/dashboard"} className="hover:underline">Hunts</Link> / <div>{data.name}</div>
             </div>
 
             <AddBonusDialog hunt_id={data.id} />
@@ -67,17 +68,20 @@ function HuntPage() {
                         <TableCell>{v.game}</TableCell>
                         <TableCell>{v.bet}€</TableCell>
                         <TableCell>{v.payout ? `${v.payout}€` : '-'}</TableCell>
-                        <TableCell className="flex items-center">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger>
-                                    <MoreHorizontal />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="*:cursor-pointer">
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleDelete(v.id)}>Delete</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                        <TableCell className="flex items-center gap-4">
+                            <EditBonusDialog hunt_id={data.id} bonus_id={v.id} current_bet={v.bet}>
+                                <DialogTrigger asChild>
+                                    <button>
+                                        Edit
+                                    </button>
+                                </DialogTrigger>
+                            </EditBonusDialog>
 
+                            <div>/</div>
+
+                            <button onClick={() => handleDelete(v.id)}>
+                                Delete
+                            </button>
                         </TableCell>
                     </TableRow>
                     )}

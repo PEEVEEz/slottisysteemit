@@ -1,36 +1,28 @@
 import { z } from "zod";
-import { PlusIcon } from "lucide-react";
-import { FormEvent, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Autocomplete } from "@/components/autocomplete";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import React, { FormEvent, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 
 const formSchema = z.object({
-    game: z.string().min(1),
     bet: z.number().nonnegative().min(0.01)
 });
 
 type Props = {
-    hunt_id: number
+    hunt_id: number,
+    bonus_id: number
+    current_bet: number | string,
+    children: React.ReactNode
 }
 
-export function EditBonusDialog({ hunt_id }: Props) {
-    const [bet, setBet] = useState("");
-    const [game, setGame] = useState("");
+export function EditBonusDialog({ hunt_id, bonus_id, children, current_bet }: Props) {
+    const [bet, setBet] = useState(current_bet.toString());
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [games, setGames] = useState<string[]>([]);
-
-    const handleSearch = async (value: string) => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/game?name=${value}`);
-        const data = await response.json();
-        setGames(data);
-    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -38,23 +30,20 @@ export function EditBonusDialog({ hunt_id }: Props) {
 
         try {
             const data = formSchema.parse({
-                bet: parseFloat(bet), game
+                bet: parseFloat(bet),
             });
 
             await fetch(`${import.meta.env.VITE_API_URL}/hunts/bonus`, {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
-                body: JSON.stringify({ ...data, hunt_id })
+                body: JSON.stringify({ ...data, hunt_id, bonus_id })
             })
 
             setOpen(false)
-
             setBet("")
-            setGame("")
-            setGames([])
 
             queryClient.invalidateQueries({ queryKey: ["hunt"] })
         } catch (error: any) {
@@ -67,22 +56,15 @@ export function EditBonusDialog({ hunt_id }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger>
-                <PlusIcon />
-            </DialogTrigger>
+            {children}
 
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add bonus</DialogTitle>
+                    <DialogTitle>Edit bonus</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-2">
-                        <div>
-                            <Label className="text-zinc-300">Game</Label>
-                            <Autocomplete handleSearch={handleSearch} items={games} name="game" value={game} setValue={setGame} />
-                        </div>
-
                         <div>
                             <Label className="text-zinc-300">Bet</Label>
                             <Input type="number" onChange={(e) => setBet(e.target.value)} value={bet} name="bet" />
@@ -90,7 +72,7 @@ export function EditBonusDialog({ hunt_id }: Props) {
                     </div>
                     <div className="mt-5 flex justify-end">
                         <Button disabled={loading} type="submit" variant={"secondary"}>
-                            Add
+                            Confirm
                         </Button>
                     </div>
                 </form>
