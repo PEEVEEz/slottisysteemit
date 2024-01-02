@@ -12,8 +12,8 @@ const formSchema = z.object({
 });
 
 type Props = {
-    hunt_id: number,
-    bonus_id: number
+    hunt_id: string,
+    bonus_id: string
     current_bet: number | string,
     children: React.ReactNode
 }
@@ -39,13 +39,13 @@ export function EditBonusDialog({ hunt_id, bonus_id, children, current_bet }: Pr
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
-                body: JSON.stringify({ ...data, hunt_id, bonus_id })
+                body: JSON.stringify({ ...data, bonus_id })
             })
 
             setOpen(false)
             setBet("")
 
-            queryClient.invalidateQueries({ queryKey: ["hunt"] })
+            queryClient.invalidateQueries({ queryKey: [`hunt_${hunt_id}`] })
         } catch (error: any) {
             console.error("Validation error:", error);
             return;

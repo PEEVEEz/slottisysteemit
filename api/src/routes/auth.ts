@@ -3,9 +3,10 @@ import {
   GetTwitchUserDataByAccessToken,
 } from "../lib/twitch";
 import { env } from "../lib/env";
-import prisma from "../lib/prisma";
 import { SetAndGenerateAuthTokenCookie } from "../lib/utils";
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
+
+import { UserModel } from "../database";
 
 export const registerAuthRoutes = (
   instance: FastifyInstance,
@@ -33,15 +34,11 @@ export const registerAuthRoutes = (
       const tokenData = await GetTwitchUserToken("authorization_code", code);
       const user = await GetTwitchUserDataByAccessToken(tokenData.access_token);
 
-      await prisma.user.upsert({
-        where: {
-          twitchId: user.twitchId,
-        },
-        update: {},
-        create: {
-          twitchId: user.twitchId,
-        },
-      });
+      await UserModel.findOneAndUpdate(
+        { twitchId: user.twitchId },
+        {},
+        { upsert: true }
+      );
 
       SetAndGenerateAuthTokenCookie(tokenData, reply);
       reply.redirect(env.DASHBOARD_URL);

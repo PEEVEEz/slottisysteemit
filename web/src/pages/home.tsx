@@ -21,7 +21,7 @@ function HomePage() {
                 <Button variant={"secondary"} asChild className="flex items-center gap-2" size={"lg"}>
                     <a href={`${import.meta.env.VITE_API_URL}/auth/login`}>
                         <TwitchIcon className="w-5 h-5 select" />
-                        <span>Login for free</span>
+                        <span>Login with twitch</span>
                     </a>
                 </Button>
             </div>

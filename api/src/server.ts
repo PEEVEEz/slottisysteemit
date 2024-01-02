@@ -5,6 +5,7 @@ import fastify, { FastifyRequest } from "fastify";
 import { registerAuthRoutes } from "./routes/auth";
 import { registerUsersRoutes } from "./routes/users";
 import { registerHuntsRoutes } from "./routes/hunts";
+import { connectDatabase } from "./database";
 
 const server = fastify();
 
@@ -43,6 +44,7 @@ server.get(
   }
 );
 
+connectDatabase();
 server.listen({ port: Number(env.PORT), host: env.HOST }, (err, addr) => {
   if (err) throw err;
 

@@ -13,7 +13,7 @@ const formSchema = z.object({
 })
 
 type Props = {
-    hunt_id: number
+    hunt_id: string
     current_name: string
     current_start: number
     children: React.ReactNode

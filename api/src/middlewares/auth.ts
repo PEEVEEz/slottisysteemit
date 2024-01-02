@@ -3,11 +3,12 @@ import {
   GetTwitchUserDataByAccessToken,
 } from "../lib/twitch";
 import { env } from "../lib/env";
-import prisma from "../lib/prisma";
 import { verify } from "jsonwebtoken";
 import type { TwitchToken } from "../types";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { SetAndGenerateAuthTokenCookie } from "../lib/utils";
+
+import { UserModel } from "../database";
 
 export const authMiddleware = async (
   req: FastifyRequest,
@@ -49,13 +50,8 @@ export const authMiddleware = async (
 
     const twitchUser = await GetTwitchUserDataByAccessToken(access_token);
 
-    const user = await prisma.user.findUnique({
-      where: {
-        twitchId: twitchUser.twitchId,
-      },
-      select: {
-        id: true,
-      },
+    const user = await UserModel.findOne({
+      twitchId: twitchUser.twitchId,
     });
 
     if (!user) {
@@ -64,7 +60,7 @@ export const authMiddleware = async (
       });
     }
 
-    req.user = { ...user, ...twitchUser };
+    req.user = { id: user._id, ...twitchUser };
   } catch (error) {
     console.error("Authentication error:", error);
     reply.status(500).send({

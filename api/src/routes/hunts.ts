@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import { HuntModel, BonusModel } from "../database";
 import { authMiddleware } from "../middlewares/auth";
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 
@@ -13,10 +13,8 @@ export const registerHuntsRoutes = (
   //get hunts
   instance.get("/", async (req, reply) => {
     try {
-      const hunts = await prisma.hunt.findMany({
-        where: {
-          userId: req.user.id,
-        },
+      const hunts = await HuntModel.find({
+        userId: req.user.id,
       });
 
       return hunts || [];
@@ -31,12 +29,7 @@ export const registerHuntsRoutes = (
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        await prisma.hunt.delete({
-          where: {
-            id: +req.params.id,
-          },
-        });
-
+        await HuntModel.findByIdAndDelete(req.params.id);
         return "ok";
       } catch (error) {
         console.error("Error deleting hunt:", error);
@@ -65,12 +58,13 @@ export const registerHuntsRoutes = (
       reply
     ) => {
       try {
-        await prisma.hunt.create({
-          data: {
-            ...req.body,
-            userId: req.user.id,
-          },
+        const newHunt = new HuntModel({
+          name: req.body.name,
+          userId: req.user.id,
+          start: req.body.start,
         });
+
+        newHunt.save();
 
         return "OK";
       } catch (error) {
@@ -90,7 +84,7 @@ export const registerHuntsRoutes = (
           properties: {
             name: { type: "string" },
             start: { type: "number" },
-            hunt_id: { type: "number" },
+            hunt_id: { type: "string" },
           },
           required: ["name", "start", "hunt_id"],
         },
@@ -103,14 +97,9 @@ export const registerHuntsRoutes = (
       reply
     ) => {
       try {
-        await prisma.hunt.update({
-          where: {
-            id: req.body.hunt_id,
-          },
-          data: {
-            name: req.body.name,
-            start: req.body.start,
-          },
+        await HuntModel.findByIdAndUpdate(req.body.hunt_id, {
+          name: req.body.name,
+          start: req.body.start,
         });
 
         return "OK";
@@ -126,18 +115,19 @@ export const registerHuntsRoutes = (
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        const hunt = await prisma.hunt.findUnique({
-          where: {
-            id: Number(req.params.id),
-          },
-          select: {
-            id: true,
-            name: true,
-            bonuses: true,
-          },
+        const hunt = await HuntModel.findById(req.params.id);
+        const bonuses = await BonusModel.find({
+          huntId: hunt?._id,
         });
 
-        return hunt;
+        return {
+          ...{
+            name: hunt?.name,
+            _id: hunt?._id,
+            start: hunt?.start,
+          },
+          bonuses,
+        };
       } catch (error) {
         console.error("Error retrieving hunt:", error);
         return reply.status(500).send("Internal Server Error");
@@ -150,11 +140,7 @@ export const registerHuntsRoutes = (
     "/bonus/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        await prisma.bonus.delete({
-          where: {
-            id: +req.params.id,
-          },
-        });
+        await BonusModel.findByIdAndDelete(req.params.id);
 
         return "ok";
       } catch (error) {
@@ -174,13 +160,13 @@ export const registerHuntsRoutes = (
       reply
     ) => {
       try {
-        const newBonus = await prisma.bonus.create({
-          data: {
-            huntId: req.body.hunt_id,
-            game: req.body.game,
-            bet: req.body.bet,
-          },
+        const newBonus = new BonusModel({
+          huntId: req.body.hunt_id,
+          game: req.body.game,
+          bet: req.body.bet,
         });
+
+        console.log(await newBonus.save());
 
         return newBonus;
       } catch (error) {
@@ -199,28 +185,21 @@ export const registerHuntsRoutes = (
           type: "object",
           properties: {
             bet: { type: "number" },
-            hunt_id: { type: "number" },
-            bonus_id: { type: "number" },
+            bonus_id: { type: "string" },
           },
-          required: ["bet", "hunt_id", "bonus_id"],
+          required: ["bet", "bonus_id"],
         },
       },
     },
     async (
       req: FastifyRequest<{
-        Body: { bet: number; hunt_id: number; bonus_id: number };
+        Body: { bet: number; bonus_id: number };
       }>,
       reply
     ) => {
       try {
-        await prisma.bonus.update({
-          where: {
-            huntId: req.body.hunt_id,
-            id: req.body.bonus_id,
-          },
-          data: {
-            bet: req.body.bet,
-          },
+        await BonusModel.findByIdAndUpdate(req.body.bonus_id, {
+          bet: req.body.bet,
         });
 
         return "OK";

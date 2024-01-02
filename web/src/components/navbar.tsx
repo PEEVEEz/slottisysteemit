@@ -9,7 +9,7 @@ export function Navbar() {
 
     return <nav className="sticky top-0 h-14 text-zinc-100">
         <div className="mx-auto max-w-7xl py-4 px-2 xl:px-0 flex items-center justify-between">
-            <div className="text-2xl font-semibold">
+            <div className="text-2xl font-semibold relative">
                 Slottisysteemit
             </div>
 
@@ -39,7 +39,7 @@ export function Navbar() {
                 {isLoggedIn ?
                     <Button size={"sm"} variant={"secondary"}>
                         <Link to={"/dashboard"}>
-                            <span>Dahsboard</span>
+                            <span>Dashboard</span>
                         </Link>
                     </Button>
                     :

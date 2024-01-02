@@ -15,7 +15,7 @@ const formSchema = z.object({
 });
 
 type Props = {
-    hunt_id: number
+    hunt_id: string
 }
 
 export function AddBonusDialog({ hunt_id }: Props) {
@@ -56,7 +56,7 @@ export function AddBonusDialog({ hunt_id }: Props) {
             setGame("")
             setGames([])
 
-            queryClient.invalidateQueries({ queryKey: ["hunt"] })
+            queryClient.invalidateQueries({ queryKey: [`hunt_${hunt_id}`] })
         } catch (error: any) {
             console.error("Validation error:", error);
             return;

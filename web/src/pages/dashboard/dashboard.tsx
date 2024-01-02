@@ -4,7 +4,7 @@ import { RootState } from "@/redux/store";
 import { Sidebar } from "@/components/sidebar";
 import { Outlet, Route, useNavigate } from "@tanstack/react-router";
 
-function DashboardPage() {
+function DashboardLayout() {
     const isAuthenticated = !!useSelector((state: RootState) => state.user.data)
 
     if (!isAuthenticated) {
@@ -25,6 +25,13 @@ function DashboardPage() {
 
 export const dashboardRoute = new Route({
     getParentRoute: () => rootRoute,
-    component: DashboardPage,
+    component: DashboardLayout,
     path: "dashboard",
+    // beforeLoad: async ({ location }) => {
+    //     if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") {
+    //         throw redirect({
+    //             to: "/dashboard/hunts"
+    //         })
+    //     }
+    // }
 })

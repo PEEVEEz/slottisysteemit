@@ -11,17 +11,17 @@ import { CreateHuntDialog } from "./components/create-hunt-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function HuntsPage() {
-    const { isLoading, data, fetchStatus, refetch } = useQuery<Hunt[]>({
+    const { isLoading, data, refetch } = useQuery<Hunt[]>({
         queryKey: ["hunts"],
         refetchOnWindowFocus: false,
         queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/hunts`, { credentials: "include" }).then((res) => res.json()),
     })
 
-    if (isLoading || fetchStatus === "fetching") {
+    if (isLoading) {
         return <Loader />
     }
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         await fetch(`${import.meta.env.VITE_API_URL}/hunts/${id}`, {
             method: "DELETE",
             credentials: "include"
@@ -58,16 +58,16 @@ function HuntsPage() {
                 <TableBody>
                     {data.map((v, k) => <TableRow key={`action_dropdown_${k}`}>
                         <TableCell>
-                            <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }} className="hover:underline">{v.name}</Link>
+                            <Link to={`/dashboard/hunts/$id`} params={{ id: v._id }} className="hover:underline">{v.name}</Link>
                         </TableCell>
                         <TableCell>{v.start}€</TableCell>
                         <TableCell>-400€</TableCell>
                         <TableCell className="flex items-center gap-4">
-                            <Link to={`/dashboard/hunts/$id`} params={{ id: v.id.toString() }}>View</Link>
+                            <Link to={`/dashboard/hunts/$id`} params={{ id: v._id }}>View</Link>
 
                             <div>/</div>
 
-                            <EditHuntDialog hunt_id={v.id} current_name={v.name} current_start={v.start} >
+                            <EditHuntDialog hunt_id={v._id} current_name={v.name} current_start={v.start} >
                                 <DialogTrigger asChild>
                                     <button>
                                         Edit
@@ -77,7 +77,7 @@ function HuntsPage() {
 
                             <div>/</div>
 
-                            <button onClick={() => handleDelete(v.id)}>
+                            <button onClick={() => handleDelete(v._id)}>
                                 Delete
                             </button>
                         </TableCell>
@@ -91,6 +91,6 @@ function HuntsPage() {
 
 export const huntsRoute = new Route({
     getParentRoute: () => dashboardRoute,
-    path: "/",
+    path: "/hunts",
     component: HuntsPage
 })
