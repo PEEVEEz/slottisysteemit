@@ -46,7 +46,7 @@ export function Sidebar() {
             }}
         </Link>
 
-        <Link to={"/dashboard/tracker"}>
+        <Link to={"/dashboard"}>
             {({ isActive }) => {
                 return (
                     <Button className="justify-start gap-2 w-full" variant={isActive ? "secondary" : "custom"}>

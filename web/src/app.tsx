@@ -12,7 +12,7 @@ import { Toaster } from "./components/ui/sonner";
 export function App() {
   if (Cookies.get("authToken")) {
     const dispatch = useDispatch();
-    const { isLoading, error, data, status } = useQuery({
+    const { isLoading, error, data } = useQuery({
       queryKey: ["userData"],
       refetchOnWindowFocus: false,
       queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/users/@me`, { credentials: "include" }).then((res) => res.json()),
