@@ -3,9 +3,9 @@ import { App } from "../app";
 
 //routes
 import { homeRoute } from "../pages/home";
-import { huntsRoute } from "../pages/dashboard/hunts";
-import { huntRoute } from "../pages/dashboard/hunt/hunt";
 import { dashboardRoute } from "../pages/dashboard/dashboard";
+import { huntRoute } from "../pages/dashboard/hunts/hunt/hunt";
+import { huntsRoute, huntsRouteLayout } from "../pages/dashboard/hunts/hunts";
 
 export const rootRoute = new RootRoute({
   component: App,
@@ -13,7 +13,10 @@ export const rootRoute = new RootRoute({
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
-  dashboardRoute.addChildren([huntsRoute, huntRoute]),
+  dashboardRoute.addChildren([
+    huntsRoute,
+    huntsRouteLayout.addChildren([huntsRoute, huntRoute]),
+  ]),
 ]);
 
 declare module "@tanstack/react-router" {

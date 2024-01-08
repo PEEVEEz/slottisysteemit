@@ -1,30 +1,26 @@
+import { z } from "zod";
+import { Hunt } from "@/types/types";
+import { PlusIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { FormEvent, useState } from "react";
+import { Loader } from "@/components/loader";
+import { addHunt } from "@/redux/slices/hunt";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-import { z } from "zod";
-import React, { FormEvent, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const formSchema = z.object({
     name: z.string().min(1),
     start: z.number().nonnegative().min(0.01)
 })
 
-type Props = {
-    hunt_id: string
-    current_name: string
-    current_start: number
-    children: React.ReactNode
-}
-
-export function EditHuntDialog({ current_name, current_start, hunt_id, children }: Props) {
-    const queryClient = useQueryClient();
+export function CreateHuntDialog() {
+    const dispatch = useDispatch();
+    const [name, setName] = useState("");
+    const [start, setStart] = useState("");
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [name, setName] = useState(current_name);
-    const [start, setStart] = useState(current_start.toString());
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -35,23 +31,23 @@ export function EditHuntDialog({ current_name, current_start, hunt_id, children 
                 start: parseFloat(start), name
             });
 
-            await fetch(`${import.meta.env.VITE_API_URL}/hunts`, {
-                method: "PUT",
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/hunts`, {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
-                body: JSON.stringify({ ...data, hunt_id })
+                body: JSON.stringify(data)
             })
 
             setOpen(false)
             setStart("")
             setName("")
 
-            queryClient.invalidateQueries({ queryKey: ["hunts"] })
+            const responseData: Hunt = await response.json();
+            dispatch(addHunt(responseData))
         } catch (error: any) {
             console.error("Validation error:", error);
-            return;
         } finally {
             setLoading(false)
         }
@@ -59,12 +55,13 @@ export function EditHuntDialog({ current_name, current_start, hunt_id, children 
 
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        {children}
-
+        <DialogTrigger>
+            <PlusIcon />
+        </DialogTrigger>
 
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Edit Bonushunt</DialogTitle>
+                <DialogTitle>New Bonushunt</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleSubmit}>
@@ -81,7 +78,9 @@ export function EditHuntDialog({ current_name, current_start, hunt_id, children 
                 </div>
 
                 <div className="mt-5 flex justify-end">
-                    <Button type="submit" disabled={loading} variant={"secondary"}>Update</Button>
+                    <Button type="submit" disabled={loading} variant={"secondary"}>
+                        {loading ? <Loader className="w-6 h-6" /> : "Create"}
+                    </Button>
                 </div>
             </form>
         </DialogContent>

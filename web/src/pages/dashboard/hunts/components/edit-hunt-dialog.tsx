@@ -1,24 +1,31 @@
-import { PlusIcon } from "lucide-react";
+import { z } from "zod";
+import { useDispatch } from "react-redux";
+import { Loader } from "@/components/loader";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-import { z } from "zod";
-import { FormEvent, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { updateHunt } from "@/redux/slices/hunt";
+import React, { FormEvent, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const formSchema = z.object({
     name: z.string().min(1),
     start: z.number().nonnegative().min(0.01)
 })
 
-export function CreateHuntDialog() {
-    const [name, setName] = useState("");
-    const queryClient = useQueryClient();
-    const [start, setStart] = useState("");
+type Props = {
+    hunt_id: string
+    current_name: string
+    current_start: number
+    children: React.ReactNode
+}
+
+export function EditHuntDialog({ current_name, current_start, hunt_id, children }: Props) {
+    const dispatch = useDispatch()
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [name, setName] = useState(current_name);
+    const [start, setStart] = useState(current_start.toString());
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -30,19 +37,22 @@ export function CreateHuntDialog() {
             });
 
             await fetch(`${import.meta.env.VITE_API_URL}/hunts`, {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
-                body: JSON.stringify(data)
+                body: JSON.stringify({ ...data, hunt_id })
             })
 
             setOpen(false)
             setStart("")
             setName("")
 
-            queryClient.invalidateQueries({ queryKey: ["hunts"] })
+            dispatch(updateHunt({
+                id: hunt_id,
+                ...data
+            }))
         } catch (error: any) {
             console.error("Validation error:", error);
             return;
@@ -53,13 +63,12 @@ export function CreateHuntDialog() {
 
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-            <PlusIcon />
-        </DialogTrigger>
+        {children}
+
 
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>New Bonushunt</DialogTitle>
+                <DialogTitle>Edit Bonushunt</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleSubmit}>
@@ -76,7 +85,11 @@ export function CreateHuntDialog() {
                 </div>
 
                 <div className="mt-5 flex justify-end">
-                    <Button type="submit" disabled={loading} variant={"secondary"}>Create</Button>
+                    <Button type="submit" disabled={loading} variant={"secondary"}>
+                        {loading ? (
+                            <Loader className="w-6 h-6" />
+                        ) : "Update"}
+                    </Button>
                 </div>
             </form>
         </DialogContent>

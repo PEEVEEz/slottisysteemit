@@ -27,11 +27,4 @@ export const dashboardRoute = new Route({
     getParentRoute: () => rootRoute,
     component: DashboardLayout,
     path: "dashboard",
-    // beforeLoad: async ({ location }) => {
-    //     if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") {
-    //         throw redirect({
-    //             to: "/dashboard/hunts"
-    //         })
-    //     }
-    // }
 })

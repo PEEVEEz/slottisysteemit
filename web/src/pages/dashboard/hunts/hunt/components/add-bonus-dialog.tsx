@@ -1,13 +1,15 @@
 import { z } from "zod";
+import { Bonus } from "@/types/types";
 import { PlusIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
 import { FormEvent, useState } from "react";
+import { Loader } from "@/components/loader";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { addBonus } from "@/redux/slices/hunt";
 import { Button } from "@/components/ui/button";
 import { Autocomplete } from "@/components/autocomplete";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useQueryClient } from "@tanstack/react-query";
-
 
 const formSchema = z.object({
     game: z.string().min(1),
@@ -19,9 +21,9 @@ type Props = {
 }
 
 export function AddBonusDialog({ hunt_id }: Props) {
+    const dispatch = useDispatch();
     const [bet, setBet] = useState("");
     const [game, setGame] = useState("");
-    const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [games, setGames] = useState<string[]>([]);
@@ -41,7 +43,7 @@ export function AddBonusDialog({ hunt_id }: Props) {
                 bet: parseFloat(bet), game
             });
 
-            await fetch(`${import.meta.env.VITE_API_URL}/hunts/bonus`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/hunts/bonus`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -56,7 +58,11 @@ export function AddBonusDialog({ hunt_id }: Props) {
             setGame("")
             setGames([])
 
-            queryClient.invalidateQueries({ queryKey: [`hunt_${hunt_id}`] })
+            const responseData: Bonus = await response.json();
+            dispatch(addBonus({
+                hunt_id,
+                bonus: responseData
+            }))
         } catch (error: any) {
             console.error("Validation error:", error);
             return;
@@ -90,7 +96,9 @@ export function AddBonusDialog({ hunt_id }: Props) {
                     </div>
                     <div className="mt-5 flex justify-end">
                         <Button disabled={loading} type="submit" variant={"secondary"}>
-                            Add
+                            {loading ? (
+                                <Loader className="w-6 h-6" />
+                            ) : "Add"}
                         </Button>
                     </div>
                 </form>

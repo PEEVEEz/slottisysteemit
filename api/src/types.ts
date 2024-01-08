@@ -9,3 +9,20 @@ export type TwitchToken = {
   access_token: string;
   refresh_token: string;
 };
+
+export type Hunt = {
+  start?: number;
+  name?: string;
+  reqavg?: string | number;
+  winnings?: string | number;
+  id?: string;
+  bonuses?: Bonus[];
+};
+
+export type Bonus = {
+  id: string;
+  game: string;
+  bet: number;
+  payout: number | null;
+  huntId: string;
+};

@@ -1,5 +1,6 @@
-import { HuntModel, BonusModel } from "../database";
+import prisma from "../lib/prisma";
 import { authMiddleware } from "../middlewares/auth";
+import { getHuntDataById, sendLatestHuntDataToRoom } from "../lib/hunt";
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 
 export const registerHuntsRoutes = (
@@ -13,8 +14,16 @@ export const registerHuntsRoutes = (
   //get hunts
   instance.get("/", async (req, reply) => {
     try {
-      const hunts = await HuntModel.find({
-        userId: req.user.id,
+      const hunts = await prisma.hunt.findMany({
+        where: {
+          userId: req.user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          start: true,
+          bonuses: true,
+        },
       });
 
       return hunts || [];
@@ -29,7 +38,14 @@ export const registerHuntsRoutes = (
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        await HuntModel.findByIdAndDelete(req.params.id);
+        await prisma.hunt.delete({
+          where: {
+            id: req.params.id,
+          },
+        });
+
+        sendLatestHuntDataToRoom(req.user.id);
+
         return "ok";
       } catch (error) {
         console.error("Error deleting hunt:", error);
@@ -58,15 +74,17 @@ export const registerHuntsRoutes = (
       reply
     ) => {
       try {
-        const newHunt = new HuntModel({
-          name: req.body.name,
-          userId: req.user.id,
-          start: req.body.start,
+        const newHunt = await prisma.hunt.create({
+          data: {
+            name: req.body.name,
+            userId: req.user.id,
+            start: req.body.start,
+          },
         });
 
-        newHunt.save();
+        sendLatestHuntDataToRoom(req.user.id);
 
-        return "OK";
+        return newHunt;
       } catch (error) {
         console.error("Error creating hunt:", error);
         return reply.status(500).send("Internal Server Error");
@@ -92,17 +110,24 @@ export const registerHuntsRoutes = (
     },
     async (
       req: FastifyRequest<{
-        Body: { start: number; hunt_id: number; name: string };
+        Body: { start: number; hunt_id: string; name: string };
       }>,
       reply
     ) => {
       try {
-        await HuntModel.findByIdAndUpdate(req.body.hunt_id, {
-          name: req.body.name,
-          start: req.body.start,
+        await prisma.hunt.update({
+          where: {
+            id: req.body.hunt_id,
+          },
+          data: {
+            name: req.body.name,
+            start: req.body.start,
+          },
         });
 
-        return "OK";
+        sendLatestHuntDataToRoom(req.user.id);
+
+        return "ok";
       } catch (error) {
         console.error("Error updating bonus:", error);
         return reply.status(500).send("Internal Server Error");
@@ -115,19 +140,7 @@ export const registerHuntsRoutes = (
     "/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        const hunt = await HuntModel.findById(req.params.id);
-        const bonuses = await BonusModel.find({
-          huntId: hunt?._id,
-        });
-
-        return {
-          ...{
-            name: hunt?.name,
-            _id: hunt?._id,
-            start: hunt?.start,
-          },
-          bonuses,
-        };
+        return await getHuntDataById(req.params.id);
       } catch (error) {
         console.error("Error retrieving hunt:", error);
         return reply.status(500).send("Internal Server Error");
@@ -140,7 +153,13 @@ export const registerHuntsRoutes = (
     "/bonus/:id",
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
-        await BonusModel.findByIdAndDelete(req.params.id);
+        await prisma.bonus.delete({
+          where: {
+            id: req.params.id,
+          },
+        });
+
+        sendLatestHuntDataToRoom(req.user.id);
 
         return "ok";
       } catch (error) {
@@ -153,20 +172,35 @@ export const registerHuntsRoutes = (
   //add bonus
   instance.post(
     "/bonus",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            game: { type: "string" },
+            bet: { type: "number" },
+            hunt_id: { type: "string" },
+          },
+          required: ["game", "bet", "hunt_id"],
+        },
+      },
+    },
     async (
       req: FastifyRequest<{
-        Body: { hunt_id: number; game: string; bet: number };
+        Body: { hunt_id: string; game: string; bet: number };
       }>,
       reply
     ) => {
       try {
-        const newBonus = new BonusModel({
-          huntId: req.body.hunt_id,
-          game: req.body.game,
-          bet: req.body.bet,
+        const newBonus = await prisma.bonus.create({
+          data: {
+            huntId: req.body.hunt_id,
+            game: req.body.game,
+            bet: req.body.bet,
+          },
         });
 
-        console.log(await newBonus.save());
+        sendLatestHuntDataToRoom(req.user.id);
 
         return newBonus;
       } catch (error) {
@@ -193,16 +227,23 @@ export const registerHuntsRoutes = (
     },
     async (
       req: FastifyRequest<{
-        Body: { bet: number; bonus_id: number };
+        Body: { bet: number; bonus_id: string };
       }>,
       reply
     ) => {
       try {
-        await BonusModel.findByIdAndUpdate(req.body.bonus_id, {
-          bet: req.body.bet,
+        await prisma.bonus.update({
+          where: {
+            id: req.body.bonus_id,
+          },
+          data: {
+            bet: req.body.bet,
+          },
         });
 
-        return "OK";
+        sendLatestHuntDataToRoom(req.user.id);
+
+        return "ok";
       } catch (error) {
         console.error("Error updating bonus:", error);
         return reply.status(500).send("Internal Server Error");

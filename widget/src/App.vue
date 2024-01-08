@@ -1,33 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { io } from "socket.io-client";
 import { Vue3Marquee } from "vue3-marquee";
 
 type Bonus = {
-  game_name: string;
+  game: string;
   bet: number;
   payout?: number;
 };
 
 type HuntData = {
   start: number;
-  winnings: number;
-  reqavg: number;
+  winnings?: number;
+  reqavg: number | string;
   bonuses: Bonus[];
 };
 
-const huntData = ref<HuntData | null>({
-  start: 501,
-  winnings: 10,
-  reqavg: 50,
-  bonuses: [
-    {
-      game_name: "Wanted",
-      bet: 300,
-    },
-  ],
-});
+const huntData = ref<HuntData | null>(null);
 
-const MAX_GAME_NAME_LENGTH = 25;
+const MAX_GAME_NAME_LENGTH = 23;
 const DEFAULT_COLORS = {
   secondary: "a78bfa",
   primary: "111827",
@@ -48,13 +39,26 @@ const fixGameName = (game_name: string) => {
 };
 
 const openedBonusesAmount = computed(
-  () =>
-    huntData.value?.bonuses.filter((v) => v.payout !== undefined).length || 0
+  () => huntData.value?.bonuses.filter((v) => v.payout !== null).length || 0
 );
+
+//socket
+const id = new URL(location.href).searchParams.get("id");
+const socket = io(import.meta.env.VITE_API_URL, {
+  query: {
+    id,
+  },
+});
+
+socket.connect();
+
+socket.on("hunt", (args) => {
+  huntData.value = args;
+});
 </script>
 <template>
   <div class="flex">
-    <div class="flex flex-col w-[22rem]" :style="{ color: getColor('text') }">
+    <div class="flex flex-col w-[24rem]" :style="{ color: getColor('text') }">
       <div class="flex justify-end">
         <div
           class="w-36 pt-0.5 rounded-tl text-center text-sm"
@@ -76,7 +80,7 @@ const openedBonusesAmount = computed(
         <div
           class="rounded-t pl-2 border-b border-gray-700/20 py-1 pr-1 flex justify-between items-center"
         >
-          <div class="text-lg">Bonustracker</div>
+          <div class="text-lg font-semibold">Bonustracker</div>
 
           <div class="flex w-36 gap-2 text-center">
             <div class="text-xs w-1/2 flex flex-col">
@@ -86,7 +90,8 @@ const openedBonusesAmount = computed(
                 :style="{
                   color: getColor('secondary'),
                 }"
-                >{{
+              >
+                {{
                   huntData?.winnings !== undefined
                     ? `${huntData?.winnings}€`
                     : "-"
@@ -112,36 +117,36 @@ const openedBonusesAmount = computed(
           v-if="huntData?.bonuses && huntData?.bonuses.length >= 8"
           vertical
           style="height: 100%; width: 100%; align-items: start"
-          class="h-10 float-left w-full py-1 text-[0.8rem] px-2 overflow-hidden"
+          class="h-10 float-left w-full py-1 text-[0.83rem] px-2 overflow-hidden"
         >
           <div
             class="flex gap-1 justify-between w-full"
             v-for="(v, k) in huntData?.bonuses"
           >
             <div class="w-5">{{ k + 1 }}.</div>
-            <div class="w-2/3">{{ fixGameName(v.game_name) }}</div>
+            <div class="w-2/3">{{ fixGameName(v.game) }}</div>
 
             <div class="w-3/12 text-end">{{ v.bet }}€</div>
             <div class="w-3/12 text-end">
-              {{ v.payout ? `${v.payout}€` : "" }}
+              {{ v.payout !== null ? `${v.payout}€` : "" }}
             </div>
           </div>
           <div> </div>
         </Vue3Marquee>
         <div
           v-if="huntData?.bonuses && huntData?.bonuses.length <= 7"
-          class="float-left w-full py-1 text-[0.8rem] px-2.5 overflow-hidden"
+          class="float-left w-full py-1 text-[0.83rem] px-2.5 overflow-hidden"
         >
           <div
             class="flex gap-1 justify-between w-full"
             v-for="(v, k) in huntData?.bonuses"
           >
             <div class="w-5">{{ k + 1 }}.</div>
-            <div class="w-2/3">{{ fixGameName(v.game_name) }}</div>
+            <div class="w-2/3">{{ fixGameName(v.game) }}</div>
 
             <div class="w-3/12 text-end">{{ v.bet }}€</div>
             <div class="w-3/12 text-end">
-              {{ v.payout !== undefined ? `${v.payout}€` : "" }}
+              {{ v.payout !== null ? `${v.payout}€` : "" }}
             </div>
           </div>
         </div>

@@ -1,7 +1,12 @@
+import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
 
-export function Loader() {
+type Props = {
+    className?: string
+}
+
+export function Loader({ className }: Props) {
     return <div className="text-zinc-300">
-        <LoaderIcon className="w-14 h-14 animate-spin " />
+        <LoaderIcon className={cn("w-14 h-14 animate-spin", className)} />
     </div>
 }

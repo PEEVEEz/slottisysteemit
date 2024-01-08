@@ -1,11 +1,11 @@
 import { env } from "./lib/env";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
+import { setupSocketServer } from "./socket";
 import fastify, { FastifyRequest } from "fastify";
 import { registerAuthRoutes } from "./routes/auth";
 import { registerUsersRoutes } from "./routes/users";
 import { registerHuntsRoutes } from "./routes/hunts";
-import { connectDatabase } from "./database";
 
 const server = fastify();
 
@@ -44,9 +44,8 @@ server.get(
   }
 );
 
-connectDatabase();
+setupSocketServer(server.server);
 server.listen({ port: Number(env.PORT), host: env.HOST }, (err, addr) => {
   if (err) throw err;
-
   console.log(`[API] Listening at ${addr}`);
 });

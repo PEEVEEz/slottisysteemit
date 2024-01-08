@@ -1,12 +1,20 @@
 export type Bonus = {
-  _id: string;
+  id: string;
   game: string;
   bet: number;
   payout?: number;
 };
 
 export type Hunt = {
-  _id: string;
+  id: string;
+  name: string;
+  start: number;
+
+  bonuses?: Bonus[];
+};
+
+export type UpdateHunt = {
+  id: string;
   name: string;
   start: number;
 };

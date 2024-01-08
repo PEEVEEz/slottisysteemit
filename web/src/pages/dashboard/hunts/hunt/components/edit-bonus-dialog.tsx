@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { useDispatch } from "react-redux";
+import { Loader } from "@/components/loader";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { updateBonus } from "@/redux/slices/hunt";
 import React, { FormEvent, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
@@ -19,10 +21,10 @@ type Props = {
 }
 
 export function EditBonusDialog({ hunt_id, bonus_id, children, current_bet }: Props) {
-    const [bet, setBet] = useState(current_bet.toString());
-    const queryClient = useQueryClient();
+    const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [bet, setBet] = useState(current_bet.toString());
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -45,7 +47,11 @@ export function EditBonusDialog({ hunt_id, bonus_id, children, current_bet }: Pr
             setOpen(false)
             setBet("")
 
-            queryClient.invalidateQueries({ queryKey: [`hunt_${hunt_id}`] })
+            dispatch(updateBonus({
+                hunt_id,
+                bonus_id,
+                bet: data.bet
+            }))
         } catch (error: any) {
             console.error("Validation error:", error);
             return;
@@ -72,7 +78,9 @@ export function EditBonusDialog({ hunt_id, bonus_id, children, current_bet }: Pr
                     </div>
                     <div className="mt-5 flex justify-end">
                         <Button disabled={loading} type="submit" variant={"secondary"}>
-                            Confirm
+                            {loading ? (
+                                <Loader className="w-6 h-6" />
+                            ) : "Confirm"}
                         </Button>
                     </div>
                 </form>

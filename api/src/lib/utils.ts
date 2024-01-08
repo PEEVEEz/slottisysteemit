@@ -6,7 +6,7 @@ import { FastifyReply } from "fastify/types/reply";
 export function SetAndGenerateAuthTokenCookie(
   { access_token, refresh_token, expires_in }: TwitchToken,
   reply: FastifyReply
-) {
+): string {
   const expiration_time = new Date();
   expiration_time.setSeconds(expiration_time.getSeconds() + expires_in);
 
@@ -15,9 +15,11 @@ export function SetAndGenerateAuthTokenCookie(
     env.JWT_SECRET
   );
 
-  return reply.setCookie("authToken", token, {
+  reply.setCookie("authToken", token, {
     path: "/",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
+
+  return token;
 }
